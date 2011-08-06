@@ -6,8 +6,6 @@ package TestApp;
 use Moose;
 use namespace::autoclean;
 use Rapit::Container;
-use FindBin;
-
 use Catalyst::Runtime 5.80;
 
 use Catalyst qw/
@@ -32,12 +30,6 @@ __PACKAGE__->config(
 );
 
 __PACKAGE__->setup();
-
-sub container {
-    my ($class) = @_;
-
-    return Rapit::Container->new(app_root => "$FindBin::Bin/..", name => 'TestApp');
-}
 
 1;
 
