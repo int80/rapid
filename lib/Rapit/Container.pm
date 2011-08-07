@@ -16,7 +16,6 @@ sub BUILD {
     my $self = shift;
 
     container $self => as {
-
         container 'Model' => as {
             # DBIC schema
             container 'RDB' => as {

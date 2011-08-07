@@ -34,7 +34,7 @@ extends 'Rapit::Container';
 sub BUILD {
     my ($self) = @_;
 
-    $self->fetch('API/Server/Async')->add_service(
+    $self->fetch('/API/Server')->add_service(
         service 'EchoTest' => (
             class => 'Rapit::API::Server::Async::EchoTest',
             block => sub {
@@ -50,18 +50,18 @@ package main;
 
 use Moose;
 use Test::More;
-use TestApp;
 use Bread::Board;
 use AnyEvent;
 use Rapit::Common;
+use FindBin;
 
-my $c = Rapit::Common->c;
+my $c = EchoTestServer->new(app_root => "$FindBin::Bin/..", name => 'AsyncAPITest');
+#my $c = Rapit::Container->new(app_root => "$FindBin::Bin/..", name => 'AsyncAPITest');
 
 my $schema = Rapit::Common->schema;
 
 #my $server = Rapit::API::Server::Async::EchoTest->new;
-
-my $server = $c->fetch('API/Server/Async')->get;
+my $server = $c->fetch('API/Server/EchoServer')->get;
 my $client = $c->fetch('API/Client/Async')->get;
 
 $server->run;
@@ -94,7 +94,6 @@ undef $server;
 $c->shutdown;
 
 done_testing();
-
 
 sub expect_error {
     my ($err, $test) = @_;
