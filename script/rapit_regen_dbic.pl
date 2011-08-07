@@ -6,7 +6,7 @@ use lib "$FindBin::Bin/../lib";
 use Rapit::Config;
 use DBIx::Class::Schema::Loader qw/ make_schema_at /;
 
-my $connection_info = Rapit::Config->get_db_connection_info;
+my $connection_info = Rapit::Config->db_connect_info;
 
 make_schema_at (
     'Rapit::Schema::RDB', {

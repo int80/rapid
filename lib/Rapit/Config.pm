@@ -43,7 +43,7 @@ sub load {
     return $configs{$name};
 }
 
-sub get_db_connection_info {
+sub db_connect_info {
     my ($class) = @_;
 
     my $config_hash = $class->load;

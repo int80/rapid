@@ -38,7 +38,8 @@ CREATE TABLE  "customer" (
    "address"   text, 
    "phone"   text, 
    "email"   text, 
-   "notes"   text, 
+   "notes"   text,
+   "key"     varchar(255) DEFAULT NULL,
    primary key ("id")
 );
 

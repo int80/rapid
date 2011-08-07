@@ -103,6 +103,7 @@ sub new_connection {
 sub DEMOLISH {
     my ($self) = @_;
 
+    return unless $self->connections;
     delete $self->connections->{$_} for keys %{ $self->connections };
 }
 

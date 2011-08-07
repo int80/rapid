@@ -38,6 +38,13 @@ __PACKAGE__->add_columns(
   { data_type => "text", is_nullable => 1 },
   "notes",
   { data_type => "text", is_nullable => 1 },
+  "key",
+  {
+    data_type => "varchar",
+    default_value => \"NULL::character varying",
+    is_nullable => 1,
+    size => 255,
+  },
 );
 __PACKAGE__->set_primary_key("id");
 __PACKAGE__->has_many(
@@ -54,8 +61,8 @@ __PACKAGE__->has_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07010 @ 2011-08-06 17:15:14
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:McE7YdGpk7xQdGbShwOqpw
+# Created by DBIx::Class::Schema::Loader v0.07010 @ 2011-08-06 19:51:43
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:HjzELPR2QLzy2RLVkIKWxQ
 
 
 # You can replace this text with custom content, and it will be preserved on regeneration

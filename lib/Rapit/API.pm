@@ -38,11 +38,22 @@ sub register_callbacks {
     }
 }
 
+sub clear_callback {
+    my ($self, $cb) = @_;
+
+    delete $self->callbacks->{$cb};
+}
+
 sub dispatch {
     my ($self, $msg, @extra) = @_;
 
-    my $cb = $self->callbacks->{$msg->command}
-        or die "unknown command " . $msg->command;
+    my $cb = $self->callbacks->{$msg->command};
+
+    unless ($cb) {
+        $self->debug("unhandled command " . $msg->command);
+        $self->warn("unhandled error: " . $msg->error_message) if $msg->is_error;
+        return 0;
+    }
 
     eval {
         $self->$cb($msg, @extra);

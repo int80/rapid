@@ -55,7 +55,9 @@ use Bread::Board;
 use AnyEvent;
 use Rapit::Common;
 
-my $c = Rapit::Common->container;
+my $c = Rapit::Common->c;
+
+my $schema = Rapit::Common->schema;
 
 #my $server = Rapit::API::Server::Async::EchoTest->new;
 
@@ -63,31 +65,55 @@ my $server = $c->fetch('API/Server/Async')->get;
 my $client = $c->fetch('API/Client/Async')->get;
 
 $server->run;
+my $cv = AE::cv;
 
 # create a client, connect to server
-my $cv = AE::cv;
-$client->register_callbacks(
-    logged_in => sub {
-        warn "logged in";
-    },
-    disconnect => sub {
-        my ($self, $msg) = @_;
-        my $error_message = $msg->error_message;
-        like($error_message, qr/No login_key specified/i, "Got no login key error");
-        $cv->send;
-    },
-);
-$client->run;
-$cv->recv;
+expect_error(qr/No login_key/i, "Got no login key error");
 
 # set login_key this time
 $client->client_key('fakekey');
+expect_error(qr/Invalid login_key/i, "Got invalid key error");
+
+my $customer = $schema->resultset('Customer')->create({
+    name => 'test customer',
+    key => 'fakekey',
+});
+
+$client->clear_callback('disconnect');
 $cv = AE::cv;
 $client->connect;
 $cv->recv;
+ok($client->is_logged_in, "Logged in");
 
+$client->disconnect;
+
+$customer->delete;
+ 
 undef $client;
 undef $server;
-undef $c;
+$c->shutdown;
 
 done_testing();
+
+
+sub expect_error {
+    my ($err, $test) = @_;
+    
+    $client->clear_callback('disconnect');
+    $client->clear_callback('error');
+
+    my $err_handler = sub {
+        my ($self, $msg) = @_;
+        my $error_message = $msg->error_message;
+        like($error_message, $err, $test);
+        $cv->send;
+    };
+    
+    $client->register_callbacks(
+        error => $err_handler,
+        disconnect => $err_handler,
+    );
+    $cv = AE::cv;
+    $client->connect;
+    $cv->recv;
+}

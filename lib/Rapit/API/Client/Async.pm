@@ -88,6 +88,8 @@ sub push {
     return $self->h->push_write(json => $msg->pack);
 }
 
+sub disconnect { shift->cleanup }
+
 # reset connection
 sub cleanup {
     my ($self) = @_;
@@ -195,10 +197,10 @@ sub parse_message {
         
     # call appropriate method
     my $ok = eval {
-        return $self->dispatch($msg);
+        $self->dispatch($msg);
     };
     
-    unless ($ok) {
+    unless (defined $ok) {
         my $err = $@ || '(unknown error)';
         $self->error("Caught error handling " . $msg->command . " command: $err");
         return;

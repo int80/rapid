@@ -6,40 +6,42 @@ package Rapit::Common;
 use Moose::Role;
 use Rapit::Container;
 use Rapit::Config;
+use Bread::Board;
+use Data::Dumper;
 
-# our container
-sub container {
+our $_container;
+sub c {
     my ($class) = @_;
 
-    return Rapit::Container->new(app_root => Rapit::Config->get_home, name => 'TestApp');
+    return $_container if $_container;
+    
+    $_container = Rapit::Container->new(app_root => Rapit::Config->get_home, name => 'TestApp');
+
+    return $_container;
+}
+
+sub shutdown {
+    undef $_container;
 }
 
 # logging facility
 sub logger {
     my ($class) = @_;
 
-    return $class->container->resolve(service => 'Logger');
+    return $class->c->resolve(service => 'Logger');
 }
  
 # RDB DBIC schema
 sub schema {
     my ($class) = @_;
 
-    return $class->container->resolve(service => 'Model/main_schema');
+    my $rdb_container = $class->c->fetch('Model/RDB')->resolve(service => 'schema');
 }
-
-sub schema_connect_info {
-    my ($class) = @_;
-
-    my $config = $self->config;
-    return Rapit::Config->get_db_connection_info;
-}
-
 
 sub config {
     my ($class) = @_;
 
-    return $class->container->resolve(service => 'Config');
+    return $class->c->resolve(service => 'Config');
 }
 
 sub error { shift->logger->error(@_); }

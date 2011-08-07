@@ -6,6 +6,7 @@ use Data::Dumper;
 use Template;
 use namespace::autoclean;
 use Rapit::Schema::RDB;
+use Carp qw/croak confess/;
 
 extends 'Catalyst::Plugin::Bread::Board::Container';
 
@@ -17,37 +18,21 @@ sub BUILD {
     container $self => as {
 
         container 'Model' => as {
-            service 'main_schema_name' => 'Rapit::Schema::RDB';
-
             # DBIC schema
             container 'RDB' => as {
-                service 'schema_class' => (
-                    block => sub {
-                        shift->param('main_schema_name');
-                    },
-                    dependencies => [ depends_on('/Model/main_schema_name') ],
-                );
-                
-                service 'connect_info' => [
-                    'dbi:mysql:my_app_db',
-                    'me',
-                    '****'
-                ];
-
                 # returns our schema object
                 # requires: SchemaInfo with schema_class and connect_info
-                service 'main_schema' => (
+                service 'schema' => (
                     class => 'DBIx::Class::Schema',
                     block => sub {
                         my $s = shift;
-                        $s->param('schema_class')->connect(
-                            @{ $s->param('connect_info') }
+                        Rapit::Schema::RDB->connect(
+                            @{ $s->param('config')->db_connect_info }
                         );
                     },
                     dependencies => {
-                        schema_class => depends_on('/Model/main_schema_name'),
-                        connect_info => depends_on('/Model/RDB/connect_info'),
-                    }
+                        config => depends_on('/Config/instance'),
+                    },
                 );
             };
         };
@@ -59,13 +44,20 @@ sub BUILD {
         );
 
         # Configuration
-        service 'Config' => (
-            lifecycle    => 'Singleton',
-            class        => 'Rapit::Config',
-            block => sub {
-                return Rapit::Config->load;
-            };
-        );
+        container 'Config' => as {
+            service 'instance' => (
+                lifecycle    => 'Singleton',
+                class        => 'Rapit::Config',
+                block        => sub {
+                    return Rapit::Config->new;
+                },
+            );
+            service 'config' => (
+                block        => sub {
+                    return shift->resolve(service => 'instance')->load
+                },
+            );
+        };
         
         # API
         container 'API' => as {
@@ -129,3 +121,11 @@ sub BUILD {
         };
     };
 }
+
+sub shutdown {
+    my ($self) = @_;
+
+    Rapit::Common->shutdown;
+}
+
+1;

@@ -56,7 +56,7 @@ has 'server' => (
 
 has 'customer_host' => (
     is => 'rw',
-    isa => 'Rapit::Schema::IDB::Result::CustomerHost',
+    isa => 'Rapit::Schema::RDB::Result::CustomerHost',
 );
 
 has 'h' => (
@@ -163,7 +163,7 @@ sub got_message {
             or return $conn->push_error("No host_name specified");
             
         # attempt to log in customer
-        my $cust = $self->schema->resultset('Customer')->find({ '`key`' => $key });
+        my $cust = $self->schema->resultset('Customer')->find({ 'key' => $key });
         if (! $cust) {
             return $conn->push_error("Invalid login_key '$key'");
         }
@@ -187,10 +187,10 @@ sub got_message {
     
     # call appropriate method
     my $ok = eval {
-        return $self->dispatch($msg, $conn);
+        $self->dispatch($msg, $conn);
     };
     
-    unless ($ok) {
+    unless (defined $ok) {
         my $err = $@ || '(unknown error)';
         $self->error("Caught error handling $cmd command: $err");
         return $self->push_error("Internal server error");
