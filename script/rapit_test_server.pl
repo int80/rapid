@@ -6,7 +6,7 @@ BEGIN {
 
 
 use FindBin;
-use lib "$FindBin::Bin/lib";
+use lib "$FindBin::Bin/../lib";
 
 use Catalyst::ScriptRunner;
 Catalyst::ScriptRunner->run('TestApp', 'Server');

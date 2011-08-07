@@ -71,11 +71,19 @@ $client->register_callbacks(
         warn "logged in";
     },
     disconnect => sub {
+        my ($self, $msg) = @_;
+        my $error_message = $msg->error_message;
+        like($error_message, qr/No login_key specified/i, "Got no login key error");
         $cv->send;
     },
 );
 $client->run;
+$cv->recv;
 
+# set login_key this time
+$client->client_key('fakekey');
+$cv = AE::cv;
+$client->connect;
 $cv->recv;
 
 undef $client;

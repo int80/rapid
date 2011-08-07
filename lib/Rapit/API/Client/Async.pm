@@ -177,7 +177,11 @@ sub server_error {
     if ($self->is_connected && $self->h && ! $self->is_logged_in) {
         # if we are not logged in and we got an error we should disconnect and reconnect later
         $self->debug("Disconnecting");
-        $self->dispatch(Rapit::API::Message->new(command => 'disconnect'));
+        $self->dispatch(Rapit::API::Message->new(
+            command => 'disconnect',
+            is_error => 1,
+            error_message => $msg->error_message,
+        ));
         $self->h->push_shutdown;
         $self->cleanup;
     }

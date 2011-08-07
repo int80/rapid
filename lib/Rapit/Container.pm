@@ -5,6 +5,7 @@ use Bread::Board;
 use Data::Dumper;
 use Template;
 use namespace::autoclean;
+use Rapit::Schema::RDB;
 
 extends 'Catalyst::Plugin::Bread::Board::Container';
 
@@ -15,22 +16,39 @@ sub BUILD {
 
     container $self => as {
 
-        service 'main_schema_name' => 'Rapit::Schema::IDB';
-        
         container 'Model' => as {
+            service 'main_schema_name' => 'Rapit::Schema::RDB';
+
             # DBIC schema
-            container 'DBIC' => as {
+            container 'RDB' => as {
                 service 'schema_class' => (
                     block => sub {
                         shift->param('main_schema_name');
                     },
-                    dependencies => [ depends_on('/main_schema_name') ],
+                    dependencies => [ depends_on('/Model/main_schema_name') ],
                 );
+                
                 service 'connect_info' => [
                     'dbi:mysql:my_app_db',
                     'me',
                     '****'
                 ];
+
+                # returns our schema object
+                # requires: SchemaInfo with schema_class and connect_info
+                service 'main_schema' => (
+                    class => 'DBIx::Class::Schema',
+                    block => sub {
+                        my $s = shift;
+                        $s->param('schema_class')->connect(
+                            @{ $s->param('connect_info') }
+                        );
+                    },
+                    dependencies => {
+                        schema_class => depends_on('/Model/main_schema_name'),
+                        connect_info => depends_on('/Model/RDB/connect_info'),
+                    }
+                );
             };
         };
 
@@ -38,6 +56,15 @@ sub BUILD {
         service 'Logger' => (
             lifecycle    => 'Singleton',
             class        => 'Rapit::Logger',
+        );
+
+        # Configuration
+        service 'Config' => (
+            lifecycle    => 'Singleton',
+            class        => 'Rapit::Config',
+            block => sub {
+                return Rapit::Config->load;
+            };
         );
         
         # API
