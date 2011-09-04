@@ -239,7 +239,7 @@ sub push_message {
 sub DEMOLISH {
     my ($self) = @_;
     
-    $self->debug("Connection shut down");
+    $self->debug("Connection shut down") if $self->server;
 }
 
 __PACKAGE__->meta->make_immutable;

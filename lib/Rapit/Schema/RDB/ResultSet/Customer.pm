@@ -13,8 +13,12 @@ around 'create' => sub {
 	my $c = $self->$orig(@rest);
 
     # auto-generate a key for the client
-    my $key = Digest::SHA1::sha1_hex(time() . rand());
-    $c->update({ 'key' => $key });
+    unless ($c->key) {
+        my $key = Digest::SHA1::sha1_hex(time() . rand());
+        $c->update({ 'key' => $key });
+    }
+
+    return $c;
 };
 
 __PACKAGE__->meta->make_immutable(inline_constructor => 0);

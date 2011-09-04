@@ -61,7 +61,7 @@ use Rapit::Common;
 use FindBin;
 
 my %test_customer = (
-    name => 'test customer',
+    name => '__test customer__',
     key => 'fakekey',
 );
 
@@ -95,14 +95,11 @@ expect_error(qr/No login_key/i, "Got no login key error");
 $client->client_key('fakekey');
 expect_error(qr/Invalid login_key/i, "Got invalid key error");
 
-# done with this test
-#$cv = AE::cv;
-
 # create a valid login
 my $customer = $customer_rs->create(\%test_customer);
 
 # terminate busyloop when login complete
-$client->register_callback(logged_in => sub { warn "logged in!"; $cv->send });
+$cv = AE::cv;
 
 $client->connect;
 
