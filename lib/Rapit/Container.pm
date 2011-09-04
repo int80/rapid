@@ -10,12 +10,20 @@ use Carp qw/croak confess/;
 
 extends 'Catalyst::Plugin::Bread::Board::Container';
 
+has '+name' => ( default => 'RapitBase' );
+
 our $VERSION = v0.01;
 
 sub BUILD {
     my $self = shift;
 
-    container $self => as {
+    return $self->build_container;
+}
+
+sub build_container {
+    my ($self) = @_;
+    
+    return container $self => as {
         container 'Model' => as {
             # DBIC schema
             container 'RDB' => as {

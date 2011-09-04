@@ -18,50 +18,62 @@ has 'port' => (
 
 has 'host' => (
     is => 'rw',
-    isa => 'Str',
+    isa => 'Undef|Str',
 #    lazy => 1,
 #    builder => 'default_host_builder',
 );
 
+# \%event => [ \&cb1, \&cb2 ... ]
 has 'callbacks' => (
     is => 'rw',
-    isa => 'HashRef',
+    isa => 'HashRef[ArrayRef[CodeRef]]',
     default => sub { {} },
     lazy => 1,
+    
+    traits  => ['Hash'],
+    handles => {
+        set_callbacks   => 'set',
+        get_callbacks   => 'get',
+        clear_callbacks => 'delete',
+        has_callbacks   => 'exists',
+    },
 );
 
+*register_callback = \&register_callbacks;
 sub register_callbacks {
     my ($self, %cbs) = @_;
     
     foreach my $k (keys %cbs) {
-        $self->callbacks->{$k} = $cbs{$k};
+        $self->callbacks->{$k} ||= [];
+
+        # don't add the same callback twice
+        next if grep { $_ == $cbs{$k} } @{ $self->callbacks->{$k} };
+        
+        push @{ $self->callbacks->{$k} }, $cbs{$k};
     }
-}
-
-sub clear_callback {
-    my ($self, $cb) = @_;
-
-    delete $self->callbacks->{$cb};
 }
 
 sub dispatch {
     my ($self, $msg, @extra) = @_;
 
-    my $cb = $self->callbacks->{$msg->command};
+    my $cbs = $self->callbacks->{$msg->command};
 
-    unless ($cb) {
-        $self->debug("unhandled command " . $msg->command);
+    if (! $cbs || ! @$cbs) {
+        $self->debug("unhandled command on $self: " . $msg->command);
         $self->warn("unhandled error: " . $msg->error_message) if $msg->is_error;
         return 0;
     }
 
-    eval {
-        $self->$cb($msg, @extra);
-    };
+    # call each registered callback
+    foreach my $cb (@$cbs) {
+        eval {
+            $self->$cb($msg, @extra);
+        };
 
-    if ($@) {
-        $self->warn("Error running " . $msg->command . " handler: $@");
-        return;
+        if ($@) {
+            $self->warn("Error running " . $msg->command . " handler $cb: $@");
+            return;
+        }
     }
 
     return 1;

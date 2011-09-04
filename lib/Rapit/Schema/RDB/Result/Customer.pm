@@ -64,11 +64,13 @@ __PACKAGE__->has_many(
 # Created by DBIx::Class::Schema::Loader v0.07010 @ 2011-08-06 19:51:43
 # DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:HjzELPR2QLzy2RLVkIKWxQ
 
+before 'delete' => sub {
+    my ($self) = @_;
 
-# You can replace this text with custom content, and it will be preserved on regeneration
-1;
+    $self->customer_hosts->delete_all;
 
+    # users too?
+};
 
-# You can replace this text with custom code or comments, and it will be preserved on regeneration
 __PACKAGE__->meta->make_immutable;
-1;
+

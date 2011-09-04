@@ -41,14 +41,24 @@ has 'connect_timer' => (
     is => 'rw',
 );
 
-sub run {
+sub BUILD {
+    my ($self) = @_;
+
+    $self->_register_default_handlers;
+}
+
+sub _register_default_handlers {
     my ($self) = @_;
     
     $self->register_callbacks(
         logged_in => \&logged_in,
         error     => \&server_error,
     );
-    
+}
+
+sub run {
+    my ($self) = @_;
+        
     my $t = AnyEvent->timer(
         after => 0,
         interval => 5,
