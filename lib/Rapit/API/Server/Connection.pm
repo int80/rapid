@@ -5,6 +5,7 @@ use namespace::autoclean;
 use Data::Dumper;
 use Rapit::API::Message;
 use Time::HiRes;
+use Rapit::UUID;
 use Carp qw/croak/;
 
 has 'host' => (
@@ -21,8 +22,8 @@ has 'port' => (
 
 has 'id' => (
     is => 'rw',
-    isa => 'Int',
-    required => 1,
+    isa => 'Str',
+    lazy_build => 1,
 );
 
 has 'last_ping_time' => (
@@ -48,8 +49,8 @@ has 'fh' => (
 
 has 'server' => (
     is => 'rw',
-#    isa => 'Rapit::API::Server',
-    handles => [ qw/ trace debug info warn error handle_message
+    does => 'Rapit::API',
+    handles => [ qw/ log handle_message
                      schema dispatch / ],
     required => 1,
 );
@@ -62,6 +63,8 @@ has 'customer_host' => (
 has 'h' => (
     is => 'rw',
 );
+
+sub _build_id { Rapit::UUID->create }
 
 sub is_logged_in {
     my ($self) = @_;
@@ -96,23 +99,23 @@ sub create_handle {
             my (undef, $fatal, $msg) = @_;
         
             if ($fatal) {
-                $self->warn("[$host:$port] fatal connection error: $msg");
+                $self->log->warn("[$host:$port] fatal connection error: $msg");
             } else {
-                $self->debug("[$host:$port] non-fatal connection error: $msg");
+                $self->log->debug("[$host:$port] non-fatal connection error: $msg");
             }
         
             $h->destroy;
             $self->finish->();
         },
         on_eof => sub {
-            $self->debug("[$host:$port] has disconnected");
+            $self->log->debug("[$host:$port] has disconnected");
             $h->destroy;
             $self->finish->();
         },
         on_read => sub {
             $h->push_read(json => sub {
                 my (undef, $data) = @_;
-                $self->trace(Dumper($data));
+                $self->log->trace(Dumper($data));
                 $self->got_message($self, $data);
             });
         };
@@ -149,7 +152,7 @@ sub got_message {
             $conn->warn("Got pong but no ping recorded");
         }
 
-        $self->debug(sprintf("client ping: %0.3fms", $ping));
+        $self->log->debug(sprintf("client ping: %0.3fms", $ping));
         $self->ping_time($ping);
         return 1;
     }
@@ -175,7 +178,7 @@ sub got_message {
         });
             
         $conn->customer_host($customer_host);
-        $self->info("Customer " . $cust->name . " logged in from $hostname");
+        $self->log->info("Customer " . $cust->name . " logged in from $hostname");
         return $self->push('logged_in', { customer_name => $cust->name });
     }
     
@@ -192,7 +195,7 @@ sub got_message {
     
     unless (defined $ok) {
         my $err = $@ || '(unknown error)';
-        $self->error("Caught error handling $cmd command: $err");
+        $self->log->error("Caught error handling $cmd command: $err");
         return $self->push_error("Internal server error");
     }
 }
@@ -218,7 +221,7 @@ sub push {
 sub push_error {
     my ($self, $err) = @_;
 
-    $self->info("Returning error $err");
+    $self->log->info("Returning error $err");
     
     my $err_msg = new Rapit::API::Message(
         is_error => 1,
@@ -233,13 +236,22 @@ sub push_message {
     my ($self, $msg) = @_;
     
     return if ! $self->h || $self->h->destroyed;
+
+    # get flattened message if it's a R::A::Message object
+    if ($msg && ref $msg ne 'HASH' && ref $msg ne 'ARRAY') {
+        # some blessed nonsense, it better serialize
+        croak "Tried to send a message but $msg cannot flatten itself"
+            unless $msg->can('flatten');
+        $msg = $msg->flatten;
+    }
+    
     return $self->h->push_write(json => $msg);
 }
 
 sub DEMOLISH {
     my ($self) = @_;
     
-    $self->debug("Connection shut down") if $self->server;
+    $self->log->debug("Connection shut down") if $self->server;
 }
 
 __PACKAGE__->meta->make_immutable;

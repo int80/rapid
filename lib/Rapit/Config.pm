@@ -6,9 +6,21 @@ use Config::JFDI;
 use File::Spec::Functions qw(rel2abs);
 use File::Basename qw(dirname);
 
+has 'app_name' => (
+    is => 'rw',
+    isa => 'Str',
+    required => 1,
+);
+
+has 'app_root' => (
+    is => 'rw',
+    required => 1,
+#    lazy_build => 1,
+);
+
 # this is gonna find the location of the rapit lib, not the
-# app using rapit. figure out something better.
-sub get_home {
+# app using rapit. currently unused
+sub _build_app_root {
     my ($class) = @_;
 
     my (undef, $path) = caller();
@@ -21,14 +33,15 @@ sub get_home {
 }
 
 our %configs = (); # cache
-sub load {
-    my ($class, $name) = @_;
+sub get {
+    my ($self) = @_;
 
-    $name ||= "Rapit";
+    my $name = $self->app_name;
 
     return $configs{$name} if exists $configs{$name};
 
-    my $home = $class->get_home;
+
+    my $home = $self->app_root;
     my %config_opts = (
         name => $name,
         path => $home,
@@ -46,7 +59,7 @@ sub load {
 sub db_connect_info {
     my ($class) = @_;
 
-    my $config_hash = $class->load;
+    my $config_hash = $class->get;
 
     my $connect_info = $config_hash->{'Model::RDB'}->{connect_info}
         or die "No connect_info found for Model::RDB";

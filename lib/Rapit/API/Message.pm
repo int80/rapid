@@ -31,4 +31,12 @@ has 'error_message' => (
     isa => 'Str',
 );
 
+# return ourselves as a plain, unblessed hashref
+sub flatten {
+    my ($self) = @_;
+
+    # sorta cheating. copy ourself as a hashref
+    return { %{ $self } };
+}
+
 __PACKAGE__->meta->make_immutable;

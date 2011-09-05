@@ -15,8 +15,10 @@ has 'client_key' => (
 sub _build_client_key {
     my ($self) = @_;
     
-    return $self->config->{client_key}
+    my $key = $self->config->{client_key}
         or die "client_key is not configured";
+
+    return $key;
 }
 
 1;

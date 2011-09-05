@@ -4,9 +4,16 @@
 package Rapit::API;
 
 use Moose::Role;
+use Moose::Exporter;
 use namespace::autoclean;
 
 with 'Rapit::Common';
+
+Moose::Exporter->setup_import_methods(
+    as_is => [qw[
+                    message
+            ]],
+);
 
 requires 'run';
 
@@ -39,6 +46,18 @@ has 'callbacks' => (
     },
 );
 
+# handy message constructor
+sub message {
+    my ($command, $params) = @_;
+
+    $params ||= {};
+    
+    return Rapit::API::Message->new(
+        command => $command,
+        params => $params,
+    );
+};
+
 *register_callback = \&register_callbacks;
 sub register_callbacks {
     my ($self, %cbs) = @_;
@@ -59,8 +78,8 @@ sub dispatch {
     my $cbs = $self->callbacks->{$msg->command};
 
     if (! $cbs || ! @$cbs) {
-        $self->debug("unhandled command on $self: " . $msg->command);
-        $self->warn("unhandled error: " . $msg->error_message) if $msg->is_error;
+        $self->log->debug("unhandled command on $self: " . $msg->command);
+        $self->log->warn("unhandled error: " . $msg->error_message) if $msg->is_error;
         return 0;
     }
 
@@ -71,7 +90,7 @@ sub dispatch {
         };
 
         if ($@) {
-            $self->warn("Error running " . $msg->command . " handler $cb: $@");
+            $self->log->warn("Error running " . $msg->command . " handler $cb: $@");
             return;
         }
     }

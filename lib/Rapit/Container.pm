@@ -12,6 +12,25 @@ extends 'Catalyst::Plugin::Bread::Board::Container';
 
 has '+name' => ( default => 'RapitBase' );
 
+has 'log' => (
+    is => 'rw',
+    isa => 'Rapit::Logger',
+    lazy_build => 1,
+);        
+
+has 'schema' => (
+    is => 'rw',
+    isa => 'Rapit::Schema::RDB',
+    lazy_build => 1,
+    handles => [qw/ resultset /],
+);        
+
+has 'config' => (
+    is => 'rw',
+    isa => 'HashRef',
+    lazy_build => 1,
+);        
+
 our $VERSION = v0.01;
 
 sub BUILD {
@@ -20,10 +39,23 @@ sub BUILD {
     return $self->build_container;
 }
 
+# logger class
+sub _build_log    { shift->resolve(service => 'Logger') }
+ 
+# RDB DBIC schema
+sub _build_schema { shift->fetch('Model/RDB')->resolve(service => 'schema') }
+
+# config loaded from $app_root/$app_name(_local)?\.*
+sub _build_config { shift->resolve(service => '/Config/loader') }
+
+# keep track of our global application container
+my $_global_c;
+sub global_context { $_global_c }
+
 sub build_container {
     my ($self) = @_;
     
-    return container $self => as {
+    my $c = container $self => as {
         container 'Model' => as {
             # DBIC schema
             container 'RDB' => as {
@@ -55,13 +87,11 @@ sub build_container {
             service 'instance' => (
                 lifecycle    => 'Singleton',
                 class        => 'Rapit::Config',
-                block        => sub {
-                    return Rapit::Config->new;
-                },
+                dependencies => [ depends_on('/app_name'), depends_on('/app_root') ],
             );
-            service 'config' => (
-                block        => sub {
-                    return shift->resolve(service => 'instance')->load
+            service 'loader' => (
+                block => sub {
+                    shift->parent->resolve(service => 'instance')->get;
                 },
             );
         };
@@ -127,12 +157,9 @@ sub build_container {
             };
         };
     };
-}
 
-sub shutdown {
-    my ($self) = @_;
-
-    Rapit::Common->shutdown;
+    $_global_c = $c;
+    return $c;
 }
 
 1;
