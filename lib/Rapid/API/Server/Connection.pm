@@ -8,6 +8,8 @@ use Time::HiRes;
 use Rapid::UUID;
 use Carp qw/croak/;
 
+with 'Rapid::API::Messaging';
+
 has 'host' => (
     is => 'rw',
     isa => 'Str',
@@ -58,10 +60,6 @@ has 'server' => (
 has 'customer_host' => (
     is => 'rw',
     isa => 'Rapid::Schema::RDB::Result::CustomerHost',
-);
-
-has 'h' => (
-    is => 'rw',
 );
 
 sub _build_id { Rapid::UUID->create }
@@ -198,54 +196,6 @@ sub got_message {
         $self->log->error("Caught error handling $cmd command: $err");
         return $self->push_error("Internal server error");
     }
-}
-
-sub push {
-    my ($self, $cmd, $params) = @_;
-
-    croak "no command specified" unless $cmd;
-    if ($cmd eq 'ping') {
-        $self->last_ping_time(Time::HiRes::time());
-    }
-    
-    $params ||= {};
-    
-    my $msg = new Rapid::API::Message(
-        command => $cmd,
-        params  => $params,
-    );
-    
-    return $self->push_message($msg->pack);
-}
-
-sub push_error {
-    my ($self, $err) = @_;
-
-    $self->log->info("Returning error $err");
-    
-    my $err_msg = new Rapid::API::Message(
-        is_error => 1,
-        error_message => $err,
-        command => 'error',
-    );
-    
-    return $self->push_message($err_msg->pack);
-}
-
-sub push_message {
-    my ($self, $msg) = @_;
-    
-    return if ! $self->h || $self->h->destroyed;
-
-    # get flattened message if it's a R::A::Message object
-    if ($msg && ref $msg ne 'HASH' && ref $msg ne 'ARRAY') {
-        # some blessed nonsense, it better serialize
-        croak "Tried to send a message but $msg cannot flatten itself"
-            unless $msg->can('flatten');
-        $msg = $msg->flatten;
-    }
-    
-    return $self->h->push_write(json => $msg);
 }
 
 sub DEMOLISH {

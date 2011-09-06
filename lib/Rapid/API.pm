@@ -10,9 +10,9 @@ use namespace::autoclean;
 with 'Rapid::Common';
 
 Moose::Exporter->setup_import_methods(
-    as_is => [qw[
-                    message
-            ]],
+    as_is => [qw/
+        message
+    /],
 );
 
 requires 'run';

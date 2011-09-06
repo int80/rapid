@@ -9,15 +9,12 @@ use Data::Dumper;
 use Rapid::API::Message;
 
 with 'Rapid::API::Client';
+with 'Rapid::API::Messaging';
 
 has 'port' => (
     is => 'rw',
     isa => 'Int',
     required => 1,
-);
-
-has 'h' => (
-    is => 'rw',
 );
 
 has 'is_connected' => (
@@ -69,34 +66,14 @@ sub run {
     $self->connect_timer($t);
 }
 
-sub push_error {
-    my ($self, $msg, $params) = @_;
-
-    # send error back to the server
-    $self->push('client_error', $params, {
-        is_error => 1, error_message => $msg,
-    });
-}
-
-sub push {
+before 'push_message' => sub {
     my ($self, $cmd, $params, $msg_args) = @_;
-
-    $params   ||= {};
-    $msg_args ||= {};
 
     unless ($self->is_connected) {
         $self->log->warn("Trying to send $cmd message on unconnected client");
         return;
     }
-
-    my $msg = new Rapid::API::Message(
-        %$msg_args,
-        command => $cmd,
-        params  => $params,
-    );
-
-    return $self->h->push_write(json => $msg->pack);
-}
+};
 
 sub disconnect { shift->cleanup }
 

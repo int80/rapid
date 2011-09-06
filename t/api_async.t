@@ -50,10 +50,11 @@ sub BUILD {
 package main;
 
 use Moose;
-use Test::More tests => 3;
+use Test::More tests => 4;
 use Bread::Board;
 use AnyEvent;
 use FindBin;
+use Rapid::API;
 
 my %test_customer = (
     name => '__test customer__',
@@ -101,6 +102,17 @@ $client->connect;
 
 $cv->recv;
 ok($client->is_logged_in, "Logged in");
+
+# send a message, we should receive it back
+$cv = AE::cv;
+my $params = { param => 123 };
+$client->register_callback(echo => sub {
+    my ($self, $msg) = @_;
+    is_deeply({ %$params, echo => 1 }, $msg->params, "Got echo");
+    $cv->send;
+});
+$client->push_message(message(echo => $params));
+$cv->recv;
 
 $client->disconnect;
 
