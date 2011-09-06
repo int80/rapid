@@ -72,7 +72,7 @@ sub test_db_connect_info {
     my ($self) = @_;
 
     # create temp db file and set our config to use it
-    my $db = tempfile();
+    my ($fh, $db) = tempfile();
 
     return [ 'dbi:SQLite:' . $db ];
 }
