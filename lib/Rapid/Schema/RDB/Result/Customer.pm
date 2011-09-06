@@ -9,7 +9,7 @@ use warnings;
 use Moose;
 use MooseX::NonMoose;
 use namespace::autoclean;
-extends 'DBIx::Class::Core';
+extends 'Rapid::Schema::BaseResult';
 
 __PACKAGE__->load_components("InflateColumn::DateTime");
 __PACKAGE__->table("customer");
@@ -61,8 +61,8 @@ __PACKAGE__->has_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07010 @ 2011-08-06 19:51:43
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:HjzELPR2QLzy2RLVkIKWxQ
+# Created by DBIx::Class::Schema::Loader v0.07010 @ 2011-09-05 20:38:08
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:pP1cyK6RthG/17NEO3xSOQ
 
 before 'delete' => sub {
     my ($self) = @_;

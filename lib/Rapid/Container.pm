@@ -2,15 +2,17 @@ package Rapid::Container;
 
 use Moose;
 use Bread::Board;
+use Class::MOP;
 use Data::Dumper;
 use Template;
 use namespace::autoclean;
-use Rapid::Schema::RDB;
 use Carp qw/croak confess/;
 
 extends 'Catalyst::Plugin::Bread::Board::Container';
 
-has '+name' => ( default => 'RapidBase' );
+has '+name' => ( default => 'Rapid', required => 1 );
+
+has 'use_test_db' => ( is => 'rw', isa => 'Bool' );
 
 has 'log' => (
     is => 'rw',
@@ -31,6 +33,12 @@ has 'config' => (
     lazy_build => 1,
 );        
 
+has 'config_instance' => (
+    is => 'rw',
+    isa => 'Rapid::Config',
+    lazy_build => 1,
+);        
+
 our $VERSION = v0.01;
 
 sub BUILD {
@@ -48,6 +56,9 @@ sub _build_schema { shift->fetch('Model/RDB')->resolve(service => 'schema') }
 # config loaded from $app_root/$app_name(_local)?\.*
 sub _build_config { shift->resolve(service => '/Config/loader') }
 
+# config object
+sub _build_config_instance { shift->resolve(service => '/Config/instance') }
+
 # keep track of our global application container
 my $_global_c;
 sub global_context { $_global_c }
@@ -56,6 +67,8 @@ sub build_container {
     my ($self) = @_;
     
     my $c = container $self => as {
+        service 'app_name' => $self->name;
+        
         container 'Model' => as {
             # DBIC schema
             container 'RDB' => as {
@@ -63,11 +76,26 @@ sub build_container {
                 # requires: SchemaInfo with schema_class and connect_info
                 service 'schema' => (
                     class => 'DBIx::Class::Schema',
+                    lifecycle => 'Singleton',
                     block => sub {
                         my $s = shift;
-                        Rapid::Schema::RDB->connect(
-                            @{ $s->param('config')->db_connect_info }
-                        );
+
+                        my $connect_info =
+                            $self->use_test_db ?
+                                $s->param('config')->test_db_connect_info :
+                                $s->param('config')->db_connect_info;
+
+                        Class::MOP::load_class('Rapid::Schema::RDB');
+
+                        my $schema = Rapid::Schema::RDB->connect(@$connect_info);
+
+                        if ($self->use_test_db) {
+                            # initialize db
+                            $self->log->debug("Deploying schema to test DB");
+                            $schema->deploy;
+                        }
+
+                        return $schema;
                     },
                     dependencies => {
                         config => depends_on('/Config/instance'),

@@ -9,7 +9,7 @@ use warnings;
 use Moose;
 use MooseX::NonMoose;
 use namespace::autoclean;
-extends 'DBIx::Class::Core';
+extends 'Rapid::Schema::BaseResult';
 
 __PACKAGE__->load_components("InflateColumn::DateTime");
 __PACKAGE__->table("role");
@@ -33,8 +33,8 @@ __PACKAGE__->has_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07010 @ 2011-08-06 17:15:14
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:ijS2xqwYl9mMD//4M89DSA
+# Created by DBIx::Class::Schema::Loader v0.07010 @ 2011-09-05 20:38:08
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:OCcQkdw3v3uDfcfNtJHJdw
 
 
 # You can replace this text with custom content, and it will be preserved on regeneration
