@@ -53,7 +53,6 @@ use Moose;
 use Test::More tests => 3;
 use Bread::Board;
 use AnyEvent;
-use Rapid::Common;
 use FindBin;
 
 my %test_customer = (
