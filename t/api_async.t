@@ -31,24 +31,20 @@ use Bread::Board;
 
 extends 'Rapid::Container';
 
-has '+name' => ( default => 'EchoTestServer' );
-
 sub BUILD {
     my ($self) = @_;
 
-    $self->build_container;
-    
-    $self->fetch('/API/Server')->add_service(
-        Bread::Board::ConstructorInjection->new(
-            name         => 'EchoTest',
-            class        => 'Rapid::API::Server::Async::EchoTest',
-            dependencies => {
-                port => depends_on('/API/port'),
-            },
-        ),
-    );
+    container $self => as {
+        container 'Test' => as {
+            service 'EchoTest' => (
+                class        => 'Rapid::API::Server::Async::EchoTest',
+                dependencies => {
+                    port => depends_on('/API/port'),
+                },
+            );
+        };
+    };
 }
-
 ##
 
 package main;
@@ -68,18 +64,19 @@ my %test_customer = (
 # construct server
 my $c = EchoTestServer->new(
     app_root => "$FindBin::Bin/..",
+    use_test_db => 1,
 );
 
 # fetch DB schema
-my $schema = Rapid::Common->schema;
+my $schema = $c->schema;
 my $customer_rs = $schema->resultset('Customer');
 
 # make sure our test account doesn't exist yet
 $customer_rs->search(\%test_customer)->delete_all;
 
 # fetch server and client
-my $server = $c->fetch('/API/Server/EchoTest')->get;
-my $client = $c->fetch('API/Client/Async')->get;
+my $server = $c->fetch('/Test/EchoTest')->get;
+my $client = $c->fetch('/API/Client/Async')->get;
 
 # run the server
 $server->run;
@@ -112,7 +109,6 @@ $customer->delete;
  
 undef $client;
 undef $server;
-$c->shutdown;
 
 done_testing();
 

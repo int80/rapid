@@ -1,10 +1,12 @@
 package Rapid::Config;
 
 use Moose;
-use namespace::autoclean;
+
 use Config::JFDI;
 use File::Spec::Functions qw(rel2abs);
 use File::Basename qw(dirname);
+use File::Temp qw/tempfile/;
+use namespace::autoclean;
 
 has 'app_name' => (
     is => 'rw',
@@ -18,8 +20,8 @@ has 'app_root' => (
 #    lazy_build => 1,
 );
 
-# this is gonna find the location of the rapid lib, not the
-# app using rapid. currently unused
+# this is gonna find the location of the rapit lib, not the
+# app using rapit. currently unused
 sub _build_app_root {
     my ($class) = @_;
 
@@ -40,11 +42,10 @@ sub get {
 
     return $configs{$name} if exists $configs{$name};
 
-
     my $home = $self->app_root;
     my %config_opts = (
         name => $name,
-        path => $home,
+        path => $home . '',
     );
 
     my $config = Config::JFDI->new(%config_opts);
@@ -65,6 +66,15 @@ sub db_connect_info {
         or die "No connect_info found for Model::RDB";
 
     return $connect_info;
+}
+
+sub test_db_connect_info {
+    my ($self) = @_;
+
+    # create temp db file and set our config to use it
+    my $db = tempfile();
+
+    return [ 'dbi:SQLite:' . $db ];
 }
 
 __PACKAGE__->meta->make_immutable;
