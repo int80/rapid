@@ -63,7 +63,8 @@ CREATE TABLE  "customer_host" (
    "id" serial8 ,
    "customer"   int NOT NULL, 
    "hostname"   varchar(255) NOT NULL, 
-   "created"   TIMESTAMP DEFAULT CURRENT_TIMESTAMP, 
+   "created"   TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+   "updated"   TIMESTAMP, 
    primary key ("id"),
  unique ("customer", "hostname") 
 );

@@ -31,6 +31,8 @@ __PACKAGE__->add_columns(
     is_nullable   => 1,
     original      => { default_value => \"now()" },
   },
+  "updated",
+  { data_type => "timestamp", is_nullable => 1 },
 );
 __PACKAGE__->set_primary_key("id");
 __PACKAGE__->add_unique_constraint(
@@ -51,8 +53,8 @@ __PACKAGE__->has_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07010 @ 2011-09-06 01:07:13
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:c5EGMV3Kq+Rh73FTtBFo+w
+# Created by DBIx::Class::Schema::Loader v0.07010 @ 2011-09-06 02:06:06
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:cfSOXDOfpmkniVza75+Thw
 
 
 # You can replace this text with custom content, and it will be preserved on regeneration

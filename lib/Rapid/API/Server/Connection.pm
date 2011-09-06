@@ -174,6 +174,7 @@ sub got_message {
             customer => $cust->id,
             hostname => $hostname,
         });
+        $customer_host->update({ updated => \ 'NOW()' });
             
         $conn->customer_host($customer_host);
         $self->log->info("Customer " . $cust->name . " logged in from $hostname");
