@@ -2,5 +2,5 @@
 package TestApp::View::TT;
 use Moose;
 use namespace::autoclean;
-extends 'Rapit::View::TT';
+extends 'Rapid::View::TT';
 1;

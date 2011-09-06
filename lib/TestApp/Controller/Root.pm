@@ -4,7 +4,7 @@ package TestApp::Controller::Root;
 use Moose;
 use namespace::autoclean;
 
-BEGIN { extends 'Rapit::Controller'; }
+BEGIN { extends 'Rapid::Controller'; }
 
 __PACKAGE__->config(namespace => '');
 

@@ -1,9 +1,9 @@
 #!/usr/bin/env perl
 
-package Rapit::API::Server::Async::EchoTest;
+package Rapid::API::Server::Async::EchoTest;
 
 use Moose;
-extends 'Rapit::API::Server::Async';
+extends 'Rapid::API::Server::Async';
 
 before 'run' => sub {
     my ($self) = @_;
@@ -29,7 +29,7 @@ package EchoTestServer;
 use Moose;
 use Bread::Board;
 
-extends 'Rapit::Container';
+extends 'Rapid::Container';
 
 has '+name' => ( default => 'EchoTestServer' );
 
@@ -41,7 +41,7 @@ sub BUILD {
     $self->fetch('/API/Server')->add_service(
         Bread::Board::ConstructorInjection->new(
             name         => 'EchoTest',
-            class        => 'Rapit::API::Server::Async::EchoTest',
+            class        => 'Rapid::API::Server::Async::EchoTest',
             dependencies => {
                 port => depends_on('/API/port'),
             },
@@ -57,7 +57,7 @@ use Moose;
 use Test::More tests => 3;
 use Bread::Board;
 use AnyEvent;
-use Rapit::Common;
+use Rapid::Common;
 use FindBin;
 
 my %test_customer = (
@@ -71,7 +71,7 @@ my $c = EchoTestServer->new(
 );
 
 # fetch DB schema
-my $schema = Rapit::Common->schema;
+my $schema = Rapid::Common->schema;
 my $customer_rs = $schema->resultset('Customer');
 
 # make sure our test account doesn't exist yet

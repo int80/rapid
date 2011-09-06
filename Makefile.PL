@@ -1,7 +1,7 @@
 use inc::Module::Install;
 
-name           'Rapit';
-all_from       'lib/Rapit/Container.pm';
+name           'Rapid';
+all_from       'lib/Rapid/Container.pm';
 
 requires       'Catalyst::Plugin::Bread::Board';
 requires       'Catalyst::View::TT';
