@@ -10,7 +10,6 @@ use Moose;
 use MooseX::NonMoose;
 use namespace::autoclean;
 extends 'Rapid::Schema::BaseResult';
-
 __PACKAGE__->load_components("InflateColumn::DateTime");
 __PACKAGE__->table("customer");
 __PACKAGE__->add_columns(
@@ -41,7 +40,7 @@ __PACKAGE__->add_columns(
   "key",
   {
     data_type => "varchar",
-    default_value => \"NULL::character varying",
+    default_value => \"null",
     is_nullable => 1,
     size => 255,
   },
@@ -61,8 +60,8 @@ __PACKAGE__->has_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07010 @ 2011-09-05 20:38:08
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:pP1cyK6RthG/17NEO3xSOQ
+# Created by DBIx::Class::Schema::Loader v0.07010 @ 2011-09-06 01:07:13
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:hFXqnVLiutXjl5UtDruxrg
 
 before 'delete' => sub {
     my ($self) = @_;

@@ -10,7 +10,6 @@ use Moose;
 use MooseX::NonMoose;
 use namespace::autoclean;
 extends 'Rapid::Schema::BaseResult';
-
 __PACKAGE__->load_components("InflateColumn::DateTime");
 __PACKAGE__->table("user_role");
 __PACKAGE__->add_columns(
@@ -28,21 +27,21 @@ __PACKAGE__->add_columns(
 );
 __PACKAGE__->set_primary_key("id");
 __PACKAGE__->belongs_to(
-  "user",
-  "Rapid::Schema::RDB::Result::User",
-  { id => "user_id" },
-  { is_deferrable => 1, on_delete => "CASCADE", on_update => "CASCADE" },
-);
-__PACKAGE__->belongs_to(
   "role",
   "Rapid::Schema::RDB::Result::Role",
   { id => "role_id" },
   { is_deferrable => 1, on_delete => "CASCADE", on_update => "CASCADE" },
 );
+__PACKAGE__->belongs_to(
+  "user",
+  "Rapid::Schema::RDB::Result::User",
+  { id => "user_id" },
+  { is_deferrable => 1, on_delete => "CASCADE", on_update => "CASCADE" },
+);
 
 
-# Created by DBIx::Class::Schema::Loader v0.07010 @ 2011-09-05 20:38:08
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:nIEHy/29u8hYUiobZcMcOA
+# Created by DBIx::Class::Schema::Loader v0.07010 @ 2011-09-06 01:07:13
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:OOrB0sJ8SckiYDhq+lH2tw
 
 
 # You can replace this text with custom content, and it will be preserved on regeneration

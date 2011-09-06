@@ -10,7 +10,6 @@ use Moose;
 use MooseX::NonMoose;
 use namespace::autoclean;
 extends 'Rapid::Schema::BaseResult';
-
 __PACKAGE__->load_components("InflateColumn::DateTime");
 __PACKAGE__->table("registry");
 __PACKAGE__->add_columns(
@@ -47,8 +46,8 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07010 @ 2011-09-05 20:38:08
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:DCwa/2DAkrW5oRvnJ3ijew
+# Created by DBIx::Class::Schema::Loader v0.07010 @ 2011-09-06 01:07:13
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:8U8Qvi3+mbm1o3cjCO5nZw
 
 
 # You can replace this text with custom content, and it will be preserved on regeneration

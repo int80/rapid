@@ -10,7 +10,6 @@ use Moose;
 use MooseX::NonMoose;
 use namespace::autoclean;
 extends 'Rapid::Schema::BaseResult';
-
 __PACKAGE__->load_components("InflateColumn::DateTime");
 __PACKAGE__->table("session");
 __PACKAGE__->add_columns(
@@ -24,8 +23,8 @@ __PACKAGE__->add_columns(
 __PACKAGE__->set_primary_key("id");
 
 
-# Created by DBIx::Class::Schema::Loader v0.07010 @ 2011-09-05 20:38:08
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:G4UwFShgnnHUJJ1jqi1/9w
+# Created by DBIx::Class::Schema::Loader v0.07010 @ 2011-09-06 01:07:13
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:v+UdP70HYj1GZcgB+arh0Q
 
 
 # You can replace this text with custom content, and it will be preserved on regeneration

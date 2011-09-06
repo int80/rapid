@@ -10,7 +10,6 @@ use Moose;
 use MooseX::NonMoose;
 use namespace::autoclean;
 extends 'Rapid::Schema::BaseResult';
-
 __PACKAGE__->load_components("InflateColumn::DateTime");
 __PACKAGE__->table("user");
 __PACKAGE__->add_columns(
@@ -26,7 +25,7 @@ __PACKAGE__->add_columns(
   "password",
   {
     data_type => "varchar",
-    default_value => \"NULL::character varying",
+    default_value => \"null",
     is_nullable => 1,
     size => 128,
   },
@@ -55,8 +54,8 @@ __PACKAGE__->has_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07010 @ 2011-09-05 20:38:08
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:W7VYY1hVxqTaraA2rtUyxA
+# Created by DBIx::Class::Schema::Loader v0.07010 @ 2011-09-06 01:07:13
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:tOb68iwDBqQqOGmerzry0w
 
 
 # You can replace this text with custom content, and it will be preserved on regeneration
