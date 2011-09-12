@@ -137,7 +137,7 @@ sub got_message {
 
     # client returned error?
     if ($msg->is_error) {
-        $conn->error("Got error from client: " . $msg->error_message);
+        $self->log->error("Got error from client: " . $msg->error_message);
         return;
     }
     

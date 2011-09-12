@@ -5,6 +5,7 @@ package Rapid::API;
 
 use Moose::Role;
 use Moose::Exporter;
+use AnyEvent;
 use namespace::autoclean;
 
 with 'Rapid::Common';
@@ -45,6 +46,56 @@ has 'callbacks' => (
         has_callbacks   => 'exists',
     },
 );
+
+has '_stdin_watcher' => (
+    is => 'rw',
+);
+
+sub start_interactive_console {
+    my ($self) = @_;
+
+    # read from stdin
+    my $w = AnyEvent->io(
+        fh => \*STDIN,
+        poll => 'r',
+        cb => sub {
+            chomp (my $input = <STDIN>);
+
+            return unless $input;
+            
+            # parse input ("command param1=a param2=b")
+            my ($command, $params) = $input =~ /^\s*(\w+)\s*(.*)$/sm;
+
+            # see if there is a handler for the command
+            my $cbs = $self->callbacks->{$command};
+            if (! $cbs || ! @$cbs) {
+                warn "Unknown command: $command\n";
+                return;
+            }
+
+            # parse params
+            $params ||= '';
+            my %params;
+            # split on space
+            my @pairs = split(/\s+/, $params);
+            foreach my $kv (@pairs) {
+                # split on =
+                my ($k, $v) = split('=', $kv);
+
+                if (! $k) {
+                    warn "Invalid parameter format: $kv. Should be in form param=value\n";
+                    next;
+                }
+                
+                $params{$k} = $v;
+            }
+
+            $self->dispatch(message($command, \%params));
+        },
+    );
+
+    $self->_stdin_watcher($w);
+}
 
 # handy message constructor
 sub message {
