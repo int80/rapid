@@ -28,7 +28,7 @@ sub all_clients {
 sub run {
     my ($self) = @_;
     
-    my $addr = $self->host;
+    my $addr = $self->bind_host;
     my $port = $self->port;
 
     my $connect = sub {

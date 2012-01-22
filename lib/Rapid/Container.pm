@@ -63,6 +63,36 @@ sub _build_config_instance { shift->resolve(service => '/Config/instance') }
 my $_global_c;
 sub global_context { $_global_c }
 
+sub config_service {
+    my ($self, $config_key, $default_value) = @_;
+
+    return (
+        block => sub {
+            my ($s) = @_;
+            
+            # load from config file
+            my $config = $s->param('config')->get;
+
+            # parse config key (split on '/')
+            my @config_key_paths = split(qr!/!, $config_key);
+            my $leaf_key = pop @config_key_paths;
+
+            # traverse config hashes
+            foreach my $key (@config_key_paths) {
+                $config = $config->{$key};
+            }
+            my $ret = $config->{$leaf_key};
+
+            # default
+            $ret = $default_value if not defined $ret;
+            return $ret;
+        },
+        dependencies => {
+            config => depends_on('/Config/instance'),
+        },
+    );
+}
+
 sub build_container {
     my ($self) = @_;
     
@@ -126,9 +156,10 @@ sub build_container {
         
         # API
         container 'API' => as {
-            service 'port' => '6000';
-            service 'host' => 'localhost';
-                
+            service 'port' => $self->config_service('api/port', 6000);
+            service 'bind_host' => $self->config_service('api/bind_host', '');
+            service 'host' => $self->config_service('api/host', 'localhost');
+
             container 'Client' => as {
                 service 'key' => '';
                             
@@ -147,7 +178,7 @@ sub build_container {
                     class => 'Rapid::API::Server::Async',
                     dependencies => {
                         port => depends_on('/API/port'),
-                        host => depends_on('/API/host'),
+                        bind_host => depends_on('/API/bind_host'),
                     },
                 );
             };
