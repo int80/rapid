@@ -6,6 +6,7 @@ all_from       'lib/Rapid/Container.pm';
 requires       'Catalyst::Plugin::Bread::Board';
 requires       'Catalyst::View::TT';
 requires       'AnyEvent::RPC';
+requires       'Any::Moose';
 requires       'MooseX::Storage';
 requires       'Moose::Exporter';
 requires       'Math::Random::Secure';
