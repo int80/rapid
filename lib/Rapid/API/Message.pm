@@ -6,7 +6,7 @@ use namespace::autoclean;
 # provides serialization
 use MooseX::Storage;
 
-with 'Rapid::Event';
+extends 'Rapid::Event';
 with Storage();
 
 __PACKAGE__->meta->make_immutable;

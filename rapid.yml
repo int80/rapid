@@ -1,0 +1,14 @@
+---
+name: Rapid
+
+
+
+#### DATABASE CONFIG:
+
+# used for testing, you should replace this in ${appname}_local.yml
+# with configuration information for a real database
+
+# if you really want to use sqlite, run rapid_deploy_schema.pl
+Model::RDB:
+    connect_info:
+        - 'dbi:SQLite:__path_to__/db.sqlite'
