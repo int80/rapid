@@ -22,7 +22,7 @@ has 'log' => (
 
 has 'schema' => (
     is => 'rw',
-    isa => 'Rapid::Schema::RDB',
+    isa => 'DBIx::Class::Schema',
     lazy_build => 1,
     handles => [qw/ resultset /],
 );        
@@ -115,9 +115,10 @@ sub build_container {
                                 $s->param('config')->test_db_connect_info :
                                 $s->param('config')->db_connect_info;
 
-                        Class::MOP::load_class('Rapid::Schema::RDB');
+                        my $schema_class = $s->param('config')->schema_class;
+                        Class::MOP::load_class($schema_class);
 
-                        my $schema = Rapid::Schema::RDB->connect(@$connect_info);
+                        my $schema = $schema_class->connect(@$connect_info);
 
                         if ($self->use_test_db) {
                             # initialize db

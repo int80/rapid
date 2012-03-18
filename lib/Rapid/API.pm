@@ -72,7 +72,7 @@ sub start_interactive_console {
             my @pairs = split(/\s+/, $params);
             foreach my $kv (@pairs) {
                 # split on =
-                my ($k, $v) = split('=', $kv);
+                my ($k, $v) = split('=', $kv, 2);
 
                 if (! $k) {
                     warn "Invalid parameter format: $kv. Should be in form param=value\n";
