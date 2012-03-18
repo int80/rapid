@@ -34,6 +34,12 @@ sub _build_app_root {
     return $directory;
 }
 
+sub schema_class {
+    my ($self) = @_;
+
+    return $self->get->{schema_class} || 'Rapid::Schema::RDB';
+}
+
 our %configs = (); # cache
 sub get {
     my ($self) = @_;
@@ -51,7 +57,7 @@ sub get {
     my $config = Config::JFDI->new(%config_opts);
     $configs{$name} = $config->get;
     
-    die "Failed to load config. Using '$home' as application home"
+    die "Failed to load config for $name. Using '$home' as application home"
         unless keys %{$configs{$name}};
 
     return $configs{$name};
