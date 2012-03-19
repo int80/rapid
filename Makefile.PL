@@ -14,11 +14,18 @@ requires 'Math::Random::Secure';
 requires 'Digest::SHA1';
 requires 'DBIx::Class::Cursor::Cached';
 requires 'Data::UUID';
-requires 'namespace::autoclean';
+requires 'namespace::autoclean' => '0.13';
 requires 'Config::JFDI';
-requires 'CatalystX::Component::Traits';
 requires 'MooseX::Traits::Pluggable';
-requires 'Catalyst::Authentication::Store::DBIx::Class';
+requires 'HTML::FormHandler::Moose';
+requires 'HTML::FormHandler::Model::DBIC';
+requires 'DBD::Pg' => '2.19.2';
+requires 'DBIx::Class' => '0.08196';
+
+requires 'Catalyst' => '5.90011';
+requires 'CatalystX::Component::Traits' => '0.16';
+requires 'Catalyst::Authentication::Store::DBIx::Class' => '0.1503';
+requires 'Catalyst::Plugin::Session::Store::DBIC' => '0.12';
 requires 'Catalyst::Plugin::Authentication';
 requires 'Catalyst::Plugin::Authentication::Credential::Password';
 requires 'Catalyst::Plugin::Authorization::Roles';
@@ -27,7 +34,7 @@ requires 'Catalyst::Plugin::Session';
 requires 'Catalyst::Plugin::Session::State::Cookie';
 requires 'Catalyst::Plugin::Bread::Board';
 requires 'Catalyst::View::TT';
-requires 'Catalyst::Model::DBIC::Schema';
+requires 'Catalyst::Model::DBIC::Schema' => '0.59';
 
 
 test_requires  'Test::More';
