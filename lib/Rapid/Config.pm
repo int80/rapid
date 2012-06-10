@@ -60,7 +60,8 @@ sub get {
     die "Failed to load config for $name. Using '$home' as application home"
         unless keys %{$configs{$name}};
 
-    return $configs{$name};
+    my $config_hash = $configs{$name};
+    return $config_hash;
 }
 
 sub db_connect_info {
@@ -68,8 +69,11 @@ sub db_connect_info {
 
     my $config_hash = $class->get;
 
-    my $connect_info = $config_hash->{'Model::RDB'}->{connect_info}
-        or die "No connect_info found for Model::RDB";
+    my $model_name = $class->schema_class;
+    $model_name =~ s/(\w+)::Schema::(\w+)/Model::$2/;
+
+    my $connect_info = $config_hash->{$model_name}->{connect_info}
+        or die "No connect_info found for $model_name";
 
     return $connect_info;
 }

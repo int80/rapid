@@ -193,7 +193,7 @@ sub build_container {
                 service 'INCLUDE_PATH'       => (
                     block => sub {
                         my $root = (shift)->param('app_root');
-                        [ $root->subdir('root/templates')->stringify ]
+                        [ $root->subdir('root/template')->stringify ]
                     },
                     dependencies => [ depends_on('/app_root') ]
                 );
