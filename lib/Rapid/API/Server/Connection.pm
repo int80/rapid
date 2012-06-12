@@ -128,7 +128,7 @@ sub got_message {
         unless $msg_hash;
 
     # deserialize into Message instance
-    my $msg = Rapid::API::Message->unpack($msg_hash)
+    my $msg = Rapid::API::Message->deserialize($msg_hash, $conn)
         or return $conn->push_error("Failed to unpack message");
         
     # message must have a command
@@ -140,7 +140,7 @@ sub got_message {
         $self->log->error("Got error from client: " . $msg->error_message);
         return;
     }
-    
+
     my $cmd = $msg->command;
 
     if ($cmd eq 'pong') {
@@ -174,7 +174,7 @@ sub got_message {
             customer => $cust->id,
             hostname => $hostname,
         });
-        $customer_host->update({ updated => time() });
+        $customer_host->update({ updated => \ 'NOW()' });
             
         $conn->customer_host($customer_host);
         $self->log->info("Customer " . $cust->name . " logged in from $hostname");
