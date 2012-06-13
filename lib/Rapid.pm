@@ -3,6 +3,7 @@ package Rapid;
 use Moose;
 use Rapid::Config;
 use Rapid::LazySchema;
+use Rapid::Logger;
 use Path::Class qw(file);
 use Class::MOP;
 use FindBin;
@@ -11,7 +12,7 @@ use FindBin;
 our $APP_NAME;
 
 # exported vars
-our ($config, $schema);
+our ($config, $schema, $log);
 our $_config;
 
 # set up exports
@@ -20,6 +21,7 @@ use Exporter::Tidy
     _map => {
         '$config' => \$config,
         '$schema' => \$schema,
+        '$log' => \$log,
     };
 
 setup();
@@ -40,6 +42,12 @@ sub setup {
     $schema = Rapid::LazySchema->new(
         config_obj => $_config,
     );
+
+    # load logger
+    my $log_level = $config->{log_level};
+    my %log_opts;
+    $log_opts{log_level} = $log_level if defined $log_level;
+    $log = Rapid::Logger->new(%log_opts);
 }
 
 # traverses parent directories of the current script being run,
