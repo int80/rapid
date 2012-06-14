@@ -16,7 +16,6 @@ has 'transport' => (
     does => 'Rapid::API::Messaging',
 );
 
-*reply_error = \&reply;
 sub reply {
     my ($self, $reply_msg) = @_;
 
@@ -33,6 +32,13 @@ sub reply {
     }
 
     $self->transport->push_message($reply_msg);
+}
+
+sub reply_error {
+    my ($self, $err_str) = @_;
+
+    $self->reply($self->transport->error($err_str));
+    return;
 }
 
 sub deserialize {

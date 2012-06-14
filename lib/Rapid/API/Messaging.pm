@@ -24,21 +24,29 @@ sub push {
         command => $cmd,
         params  => $params,
     );
-    
+
     return $self->push_message($msg->pack);
 }
 
-sub push_error {
-    my ($self, $err) = @_;
+# construct Message from error string
+sub error {
+    my ($class, $err_str) = @_;
 
-    $self->log->info("Returning error $err");
-    
     my $err_msg = new Rapid::API::Message(
         is_error => 1,
-        error_message => $err,
+        error_message => $err_str,
         command => 'error',
     );
-    
+
+    return $err_msg;
+}
+
+sub push_error {
+    my ($self, $err_str) = @_;
+
+    $self->log->info("Returning error $err_str");
+    my $err_msg = $self->error($err_str);
+
     return $self->push_message($err_msg->pack);
 }
 
