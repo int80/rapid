@@ -31,6 +31,7 @@ sub reply {
     if (ref($reply_or_command) && $reply_or_command->DOES('Rapid::Event')) {
         # this is a message object
         $reply = $reply_or_command;
+        @keep_fields = @_;
     } else {
         # we got ($command, $params, @keep_fields)
         my $command = $reply_or_command;
