@@ -44,7 +44,7 @@ sub error {
 sub push_error {
     my ($self, $err_str) = @_;
 
-    $self->log->info("Returning error $err_str");
+    $self->log->warn("Returning error $err_str");
     my $err_msg = $self->error($err_str);
 
     return $self->push_message($err_msg->pack);
