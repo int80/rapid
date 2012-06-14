@@ -81,10 +81,10 @@ sub disconnect { shift->cleanup }
 sub cleanup {
     my ($self) = @_;
 
-    $self->h->destroy if $self->h;
     $self->is_connected(0);
     $self->is_logged_in(0);
     $self->clear_client;
+    $self->h->destroy if $self->h;
 }
 
 sub connect {
