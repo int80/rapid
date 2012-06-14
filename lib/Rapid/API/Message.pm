@@ -16,22 +16,41 @@ has 'transport' => (
     does => 'Rapid::API::Messaging',
 );
 
+# convenience method
+# can pass either a Rapid::API::Message, or
+# ($command_name, \%params, @keep_fields)
 sub reply {
-    my ($self, $reply_msg) = @_;
+    my $self = shift;
+    my $reply_or_command = shift;
+
+    # params to copy from self to reply
+    my @keep_fields;
+
+    # reply can be an Event or a string
+    my $reply;
+    if (ref($reply_or_command) && $reply_or_command->DOES('Rapid::Event')) {
+        # this is a message object
+        $reply = $reply_or_command;
+    } else {
+        # we got ($command, $params, @keep_fields)
+        my $command = $reply_or_command;
+        my $params = shift(@_) || {};
+        @keep_fields = @_;
+        $reply = __PACKAGE__->new(
+            command => $command,
+            params => $params,
+        );
+    }
 
     # keep some params if we're replying
     my $orig_params = $self->params;
-    my $reply_params = $reply_msg->params;
-
-    # params to keep
-    my @keep = qw/camera_id/;
-
-    foreach my $p (@keep) {
-        $reply_params = $orig_params->{$p}
+    my $reply_params = $reply->params;
+    foreach my $p (@keep_fields) {
+        $reply_params->{$p} = $orig_params->{$p}
             if exists $orig_params->{$p} && ! exists $reply_params->{$p};
     }
 
-    $self->transport->push_message($reply_msg);
+    $self->transport->push_message($reply);
 }
 
 sub reply_error {

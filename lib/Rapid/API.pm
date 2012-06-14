@@ -94,7 +94,7 @@ sub message {
     my ($command, $params) = @_;
 
     $params ||= {};
-    
+
     return Rapid::API::Message->new(
         command => $command,
         params => $params,
