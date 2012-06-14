@@ -21,6 +21,8 @@ requires 'HTML::FormHandler::Moose';
 requires 'HTML::FormHandler::Model::DBIC';
 requires 'DBD::Pg' => '2.19.2';
 requires 'DBIx::Class' => '0.08196';
+requires 'Path::Class';
+requires 'Exporter::Tidy';
 
 requires 'Catalyst' => '5.90011';
 requires 'CatalystX::Component::Traits' => '0.16';

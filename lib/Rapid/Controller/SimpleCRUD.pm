@@ -11,7 +11,7 @@ BEGIN {
 
 sub get_params {
     my ( $self, $c ) = @_;
-    
+
     my $params = $c->req->params;
 
     # add uploads to params
@@ -23,7 +23,7 @@ sub get_params {
     return $params;
 }
 
-sub item : Chained('base') : PathPart('') : CaptureArgs(1) {
+sub item :Chained('base') PathPart('') CaptureArgs(1) {
     my ( $self, $c, $item_id ) = @_;
 
     my $item = $c->model( $self->config->{model_class} )->find($item_id, { force_pool => 'master' })
@@ -32,7 +32,7 @@ sub item : Chained('base') : PathPart('') : CaptureArgs(1) {
     $c->stash( $self->config->{item_label} => $item );
 }
 
-sub create : Chained('base') : PathPart('create') : Args(0) {
+sub create :Chained('base') PathPart('create') Args(0) {
     my ( $self, $c ) = @_;
 
     # set add_form to edit_form unless defined
@@ -54,21 +54,20 @@ sub create : Chained('base') : PathPart('create') : Args(0) {
     );
 
     if ($c->req->method eq 'POST') {
-        
         return unless $form->process( item => $row, params => $c->req->parameters );
-        
+
         $c->stash( $self->config->{item_label} => $row );
     }
 
 }
 
-sub edit : Chained('item') : PathPart('edit') : Args(0) {
+sub edit :Chained('item') PathPart('edit') Args(0) {
     my ( $self, $c ) = @_;
 
     # loads the form class
     Class::Load::load_class( $self->config->{edit_form} )
       or croak 'Failed to load edit form class';
-    
+
     my $form_opts = $self->config->{form_opts};
 
     my $form = $self->config->{edit_form}->new(
@@ -86,7 +85,7 @@ sub edit : Chained('item') : PathPart('edit') : Args(0) {
     }
 }
 
-sub list : Chained('base') : PathPart('list') : Args(0) {
+sub list :Chained('base') PathPart('list') Args(0) {
     my ( $self, $c ) = @_;
 
     # items per page
@@ -116,7 +115,7 @@ sub list : Chained('base') : PathPart('list') : Args(0) {
     );
 }
 
-sub delete : Chained('item') : PathPart('delete') : Args(0) {
+sub delete :Chained('item') PathPart('delete') Args(0) {
     my ( $self, $c ) = @_;
 
     my $item = $c->stash->{ $self->config->{item_label} };

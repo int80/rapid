@@ -179,7 +179,7 @@ sub server_error {
 sub parse_message {
     my ($self, $msg_hash) = @_;
     
-    my $msg = Rapid::API::Message->unpack($msg_hash)
+    my $msg = Rapid::API::Message->deserialize($msg_hash, $self)
         or return $self->log->error("Failed to unpack message");
         
     # call appropriate method
