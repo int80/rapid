@@ -7,6 +7,7 @@ use namespace::autoclean;
 
 use Moose::Exporter;
 use Rapid::Event;
+use Rapid qw/$log/;
 
 Moose::Exporter->setup_import_methods(
     as_is => [qw/
@@ -61,8 +62,8 @@ sub dispatch {
     my $cbs = $self->callbacks->{$msg->command};
 
     if (! $cbs || ! @$cbs) {
-        $self->c->log->debug("unhandled command on $self: " . $msg->command);
-        $self->c->log->warn("unhandled error: " . $msg->error_message) if $msg->is_error;
+        $log->debug("unhandled command on $self: " . $msg->command);
+        $log->warn("unhandled error: " . $msg->error_message) if $msg->is_error;
         return 0;
     }
 
@@ -73,7 +74,7 @@ sub dispatch {
         };
 
         if ($@) {
-            $self->c->log->warn("Error running " . $msg->command . " handler $cb: $@");
+            $log->warn("Error running " . $msg->command . " handler $cb: $@");
             return;
         }
     }
