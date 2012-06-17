@@ -19,7 +19,7 @@ has 'connections' => (
     traits => [ 'Hash' ],
     default => sub { {} },
     handles => {
-        'all_connections' => 'keys',
+        'all_connections' => 'values',
     },
 );
 
