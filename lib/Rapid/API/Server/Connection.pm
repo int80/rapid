@@ -102,13 +102,13 @@ sub create_handle {
                 $self->log->debug("[$host:$port] non-fatal connection error: $msg");
             }
         
-            $h->destroy;
             $self->finish->();
+            $h->destroy;
         },
         on_eof => sub {
             $self->log->debug("[$host:$port] has disconnected");
-            $h->destroy;
             $self->finish->();
+            $h->destroy;
         },
         on_read => sub {
             $h->push_read(json => sub {
