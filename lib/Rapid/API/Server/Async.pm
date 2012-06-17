@@ -5,6 +5,7 @@ use namespace::autoclean;
 use Rapid::API::Server::Connection;
 use AnyEvent::Handle;
 use AnyEvent::Socket;
+use Carp qw/croak/;
 
 with 'Rapid::API';
 
@@ -15,14 +16,34 @@ has 'tcp_server' => (
 has 'connections' => (
     is => 'rw',
     isa => 'HashRef',
+    traits => [ 'Hash' ],
     default => sub { {} },
+    handles => {
+        'all_connections' => 'keys',
+    },
 );
 
-*all_connections = \&all_clients;
-sub all_clients {
-    my ($self) = @_;
+# find client connections from a host
+# there should really only be one
+sub connections_for_host {
+    my ($self, $host) = @_;
 
-    return values %{ $self->connections };
+    croak "host required" unless $host;
+    croak "connections_for_host returns a list" unless wantarray;
+
+    my $hostid = $host->id;
+
+    my @ret;
+
+    foreach my $conn ($self->all_connections) {
+        next unless $conn->is_logged_in;
+        next unless $conn->customer_host;
+        next unless $conn->customer_host->id == $hostid;
+
+        push @ret, $conn;
+    }
+
+    return @ret;
 }
 
 sub run {
@@ -97,8 +118,8 @@ sub new_connection {
 sub broadcast {
     my ($self, $msg) = @_;
 
-    foreach my $client ($self->all_clients) {
-        $client->push_message($msg);
+    foreach my $conn ($self->all_connections) {
+        $conn->push_message($msg);
     }
 }
 
