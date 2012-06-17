@@ -36,6 +36,7 @@ sub connections_for_host {
     my @ret;
 
     foreach my $conn ($self->all_connections) {
+        warn $conn->id;
         next unless $conn->is_logged_in;
         next unless $conn->customer_host;
         next unless $conn->customer_host->id == $hostid;
@@ -48,28 +49,28 @@ sub connections_for_host {
 
 sub run {
     my ($self) = @_;
-    
+
     my $addr = $self->bind_host;
     my $port = $self->port;
 
     my $connect = sub {
         my ($listen_addr) = @_;
-        
+
         my $s = tcp_server $listen_addr, $port, sub {
             my ($fh, $host, $port) = @_;
-   
+
             my $conn = $self->handle_new_connection($fh, $host, $port);
             $self->connections->{$conn->id} = $conn;
         };
         $self->tcp_server($s);
-        
+
         $self->register_callbacks(
             client_error => \&client_error,
         );
-    
+
         $self->log->debug("Server listening on port $port");
     };
-    
+
     if ($addr) {
         inet_aton $addr, sub {
             my (@addresses) = @_;
@@ -90,7 +91,7 @@ sub client_error {
 
 sub handle_new_connection {
     my ($self, $fh, $host, $port) = @_;
-    
+
     my $conn; $conn = Rapid::API::Server::Connection->new(
         host   => $host,
         port   => $port,
@@ -101,10 +102,10 @@ sub handle_new_connection {
             delete $self->connections->{$conn->id};
         },
     );
-    
+
     $conn->create_handle;
     $self->new_connection($conn);
-    
+
     return $conn;
 }
 
