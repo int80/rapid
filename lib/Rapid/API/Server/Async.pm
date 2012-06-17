@@ -36,7 +36,6 @@ sub connections_for_host {
     my @ret;
 
     foreach my $conn ($self->all_connections) {
-        warn $conn->id;
         next unless $conn->is_logged_in;
         next unless $conn->customer_host;
         next unless $conn->customer_host->id == $hostid;
