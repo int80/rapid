@@ -3,12 +3,11 @@ package Rapid::API::Message;
 use Moose;
 use namespace::autoclean;
 use Carp qw/croak/;
+extends 'Rapid::Event';
 
 # provides serialization
-use MooseX::Storage;
-
-extends 'Rapid::Event';
-with Storage();
+with 'Rapid::Storage';
+__PACKAGE__->serializable(qw/ command params is_error error_message /);
 
 # connection this message was sent over
 has 'transport' => (
@@ -65,6 +64,7 @@ sub deserialize {
     my ($class, $msg, $transport) = @_;
 
     croak "transport required" unless $transport;
+
     my $unpacked = $class->unpack($msg);
     $unpacked->transport($transport);
     return $unpacked;
