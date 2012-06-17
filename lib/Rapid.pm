@@ -4,7 +4,7 @@ use Moose;
 use Rapid::Config;
 use Rapid::LazySchema;
 use Rapid::Logger;
-use Path::Class qw(file);
+use Path::Class qw(file dir);
 use Class::MOP;
 use FindBin;
 
@@ -56,7 +56,7 @@ sub find_app_root {
     my ($class) = @_;
 
     # traverse upwards until we find '.app_root'
-    my $root = file($FindBin::RealBin)->dir;
+    my $root = dir($FindBin::RealBin);
     while ($root && ! -e $root->file('.app_root')) {
         if ($root eq $root->parent) {
             # we are at /
