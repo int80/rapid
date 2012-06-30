@@ -13,6 +13,7 @@ __PACKAGE__->serializable(qw/ command params is_error error_message /);
 has 'transport' => (
     is => 'rw',
     does => 'Rapid::API::Messaging',
+    weak_ref => 1,
 );
 
 # convenience method
@@ -21,6 +22,9 @@ has 'transport' => (
 sub reply {
     my $self = shift;
     my $reply_or_command = shift;
+
+    # might not still be connected
+    return unless $self->transport;
 
     # params to copy from self to reply
     my @keep_fields;
@@ -56,6 +60,9 @@ sub reply {
 sub reply_error {
     my ($self, $err_str) = @_;
 
+    # might not still be connected
+    return unless $self->transport;
+
     $self->reply($self->transport->error($err_str));
     return;
 }
@@ -69,5 +76,9 @@ sub deserialize {
     $unpacked->transport($transport);
     return $unpacked;
 }
+
+#use Carp qw/cluck/;
+#sub BUILD { warn "\n+++msg create\n" }
+#sub DEMOLISH { warn "--msg demolish--\n\n\n" }
 
 __PACKAGE__->meta->make_immutable;
